@@ -1,0 +1,45 @@
+---
+- name: Install necessary programs
+  tags: git,vim,nginx,certbot
+  package:
+    name: 
+    - git
+    - vim
+    - nginx
+    - certbot
+    - python3-certbot-nginx
+    state: latest
+    update_cache: yes
+
+- name: Start nginx
+  service:
+    name: nginx
+    state: started
+
+- name: Config for website
+  template:
+    src: "{{ website_config }}"
+    dest: /etc/nginx/sites-available/{{ website_name }}
+
+- name: create symlink
+  file:
+    src: /etc/nginx/sites-available/{{ website_name }}
+    dest: /etc/nginx/sites-enabled/{{ website_name }}
+    state: link
+
+# maybe use handler here?
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: clone git repo with website content
+  git:
+    repo: https://github.com/chrberrig/webbase.git
+    dest: /var/www/{{ website_name }}
+
+- name: Set up crontab updating the website content from remote repo.
+  cron: 
+    name: "Update website from repo"
+    minute: "*/5"
+    job: git -C /var/www/{{ website_name }} pull

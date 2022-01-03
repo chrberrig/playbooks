@@ -1,0 +1,3 @@
+domain: christianberrig.com
+website_config: website_config.j2
+website_name: homepage
