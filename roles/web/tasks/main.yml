@@ -27,15 +27,34 @@
     dest: /etc/nginx/sites-enabled/{{ website_name }}
     state: link
 
-# maybe use handler here?
 - name: restart nginx
   service:
     name: nginx
     state: restarted
 
+- name: Register certbot
+  shell: >
+    certbot -n register --agree-tos --email chrberrig@protonmail.com
+    touch /etc/letsencrypt/.registered
+  args:
+    creates: /etc/letsencrypt/.registered
+
+- name: Setup cronjob for renewal
+  cron:
+    name: certbot-renewal
+    minute: "0"
+    hour: "14"
+    job: "certbot -q renew'"
+
+- name: Get certificate
+  shell: certbot -n --nginx -d {{ domain }} -d www.{{ domain }}
+  args:
+    creates: /etc/letsencrypt/live/{{ domain }}
+  ignore_errors: true
+
 - name: clone git repo with website content
   git:
-    repo: https://github.com/chrberrig/webbase.git
+    repo: https://github.com/chrberrig/{{ website_name }}.git
     dest: /var/www/{{ website_name }}
 
 - name: Set up crontab updating the website content from remote repo.

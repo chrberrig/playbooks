@@ -24,11 +24,11 @@
   roles:
   - web
 
-- name: Set up mail-server
-  hosts: mail
-  become: true
-  tags: mail
-  roles:
-  - mail
-
+# - name: Set up mail-server
+#   hosts: mail
+#   become: true
+#   tags: mail
+#   roles:
+#   - mail
+# 
 
