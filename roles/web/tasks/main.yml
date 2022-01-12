@@ -8,8 +8,21 @@
     - nginx
     - certbot
     - python3-certbot-nginx
+    - rsync
     state: latest
     update_cache: yes
+
+- name: clone git repo with website content
+  git:
+    repo: https://github.com/chrberrig/{{ website_name }}.git
+    dest: /root/repos/{{ website_name }}
+  
+# - name: Copy dst files from {{ website_name }}-repo to webroot
+#   copy:
+#     src: /root/repos/{{ website_name }}/dst
+#     dest: /var/www/{{ website_name }}
+#     remote_src: yes
+#     validate: visudo -csf %s
 
 - name: Start nginx
   service:
@@ -32,33 +45,39 @@
     name: nginx
     state: restarted
 
-- name: Register certbot
-  shell: >
-    certbot -n register --agree-tos --email chrberrig@protonmail.com
-    touch /etc/letsencrypt/.registered
-  args:
-    creates: /etc/letsencrypt/.registered
+# - name: Register certbot
+#   shell: >
+#     certbot -n register --agree-tos --email chrberrig@protonmail.com
+#     touch /etc/letsencrypt/.registered
+#   args:
+#     creates: /etc/letsencrypt/.registered
+# 
+# - name: Setup cronjob for renewal
+#   cron:
+#     name: certbot-renewal
+#     day: "*/14"
+#     job: "certbot -q renew'"
+# 
+# - name: Get certificate
+#   shell: certbot -n --nginx -d {{ domain }} -d www.{{ domain }}
+#   args:
+#     creates: /etc/letsencrypt/live/{{ domain }}
+#   ignore_errors: true
 
-- name: Setup cronjob for renewal
-  cron:
-    name: certbot-renewal
-    minute: "0"
-    hour: "14"
-    job: "certbot -q renew'"
+- name: Creates directory
+  file:
+    path: /root/repos
+    state: directory
 
-- name: Get certificate
-  shell: certbot -n --nginx -d {{ domain }} -d www.{{ domain }}
-  args:
-    creates: /etc/letsencrypt/live/{{ domain }}
-  ignore_errors: true
-
-- name: clone git repo with website content
-  git:
-    repo: https://github.com/chrberrig/{{ website_name }}.git
-    dest: /var/www/{{ website_name }}
-
-- name: Set up crontab updating the website content from remote repo.
+- name: Set up crontab to pull website content from remote repo.
   cron: 
     name: "Update website from repo"
     minute: "*/5"
-    job: git -C /var/www/{{ website_name }} pull
+    job: git -C /root/repos/{{ website_name }} pull 
+
+- name: Set up crontab updating the website locally.
+  cron: 
+    name: "Update website localy"
+    minute: "*/2"
+    job: cp -r /root/repos/{{ website_name }}/dst /var/www/{{ website_name }}
+    # job: rsync -vrp --delete-after /root/repos/{{ website_name }}/dst /var/www/homepage
