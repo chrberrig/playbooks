@@ -1,0 +1,8 @@
+[base]
+vps ansible_host=christianberrig.com ansible_user=root
+
+[web]
+vps
+
+[mail]
+vps
