@@ -12,35 +12,40 @@
     state: latest
     update_cache: yes
 
+- name: Create directory for repos
+  file:
+    path: /root/repos
+    state: directory
+
 - name: Clone git repo with website content
   git:
     repo: https://github.com/chrberrig/{{ website_name }}.git
     dest: /root/repos/{{ website_name }}
   
-# - name: Copy dst files from {{ website_name }}-repo to webroot
-#   copy:
-#     src: /root/repos/{{ website_name }}/dst
-#     dest: /var/www/{{ website_name }}
-#     remote_src: yes
+- name: Copy dst files from {{ website_name }}-repo to webroot
+  copy:
+    src: /root/repos/{{ website_name }}/dst
+    dest: /var/www/{{ website_name }}
+    remote_src: yes
 #     validate: visudo -csf %s
 
-# - name: Start nginx service
-#   service:
-#     name: nginx
-#     state: started
-# 
-# - name: Config for website
-#   template:
-#     src: "{{ website_config }}"
-#     dest: /etc/nginx/sites-available/{{ website_name }}
-# 
-# - name: Create symlink for site-activation (nginx available -> enabled)
-#   file:
-#     src: /etc/nginx/sites-available/{{ website_name }}
-#     dest: /etc/nginx/sites-enabled/{{ website_name }}
-#     state: link
-#   notify: Restart nginx service
-# 
+- name: Start nginx service
+  service:
+    name: nginx
+    state: started
+
+- name: Config for website
+  template:
+    src: "{{ website_config }}"
+    dest: /etc/nginx/sites-available/{{ website_name }}
+
+- name: Create symlink for site-activation (nginx available -> enabled)
+  file:
+    src: /etc/nginx/sites-available/{{ website_name }}
+    dest: /etc/nginx/sites-enabled/{{ website_name }}
+    state: link
+  notify: Restart nginx service
+
 # - name: Create dummy file indicating certbot registering
 #   file:
 #     touch: /etc/letsencrypt/.registered
@@ -53,11 +58,6 @@
 #     - Get certificate
 #     - Certificate renewal cronjob
 
-- name: Create directory for repos
-  file:
-    path: /root/repos
-    state: directory
-
 - name: Set up crontab to pull website content from remote repo.
   cron: 
     name: "Update website from repo"
@@ -68,5 +68,21 @@
   cron: 
     name: "Update website localy"
     minute: "*/2"
-    # job: cp -rf /root/repos/{{ website_name }}/dst/* /var/www/{{ website_name }}/*
     job: rsync -a /root/repos/{{ website_name }}/dst/ /var/www/{{ website_name }}
+
+- name: Register certbot
+  shell: |
+    certbot -n register --agree-tos --email chrberrig@protonmail.com
+    touch /etc/letsencrypt/.registered
+  args:
+    creates: /etc/letsencrypt/.registered
+
+- name: Get certificate
+  command: '/usr/local/bin/certbot -n --nginx -d {{ domain }} -d www.{{ domain }}'
+  args:
+    creates: '/etc/letsencrypt/live/{{ hostname }}'
+#   ignore_errors: true
+  notify: Setup cronjob for cert renewal
+
+
+

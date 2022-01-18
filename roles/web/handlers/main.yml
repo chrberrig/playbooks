@@ -1,11 +1,11 @@
 ---
-- name: Register certbot
-  shell: certbot -n register --agree-tos --email chrberrig@protonmail.com
+# - name: Register certbot
+#   shell: certbot -n register --agree-tos --email chrberrig@protonmail.com
 
-- name: Get certificate
-  shell: certbot -n --nginx -d {{ domain }} -d www.{{ domain }}
+# - name: Get certificate
+#   shell: certbot -n --nginx -d {{ domain }} -d www.{{ domain }}
 
-- name: Certificate renewal cronjob
+- name: Setup cronjob for cert renewal
   cron:
     name: certbot-renewal
     day: "*/14"
