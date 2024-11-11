@@ -1,35 +1,37 @@
 ---
-- name: Create Ansible user
-  tags: always
-  user:
-    name: "{{ ansible_user }}"
-    groups: root
+include_tasks: essentials.yml
 
-- name: Add ssh key for ansible user
-  tags: always
-  authorized_key:
-    user: "{{ ansible_user }}"
-    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
-
-#- name: Add sudoers file for ansible user
-#  tags: always
-#  copy:
-#    src: 
-#    dest: /etc/sudoers.d/{{ ansible_user }}
-#    owner: root
-#    group: root
-#    mode: 0440
-
-- name: config .bashrc
-  replace:
-    path: "~/.bashrc"
-    regexp: '^#\s*(alias.*)'
-    replace: '\1'
-    regexp: '^#\s*(export.*)'
-    replace: '\1'
-    regexp: '^#\s*(eval.*)'
-    replace: '\1'
-    regexp: '^#\s*(umask.*)'
-    replace: '\1'
-    regexp: '^#\s*(PS1.*)'
-    replace: '\1'
+# - name: Create Ansible user
+#   tags: always
+#   user:
+#     name: "{{ ansible_user }}"
+#     groups: root
+# 
+# - name: Add ssh key for ansible user
+#   tags: always
+#   authorized_key:
+#     user: "{{ ansible_user }}"
+#     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+# 
+# #- name: Add sudoers file for ansible user
+# #  tags: always
+# #  copy:
+# #    src: 
+# #    dest: /etc/sudoers.d/{{ ansible_user }}
+# #    owner: root
+# #    group: root
+# #    mode: 0440
+# 
+# - name: config .bashrc
+#   replace:
+#     path: "~/.bashrc"
+#     regexp: '^#\s*(alias.*)'
+#     replace: '\1'
+#     regexp: '^#\s*(export.*)'
+#     replace: '\1'
+#     regexp: '^#\s*(eval.*)'
+#     replace: '\1'
+#     regexp: '^#\s*(umask.*)'
+#     replace: '\1'
+#     regexp: '^#\s*(PS1.*)'
+#     replace: '\1'

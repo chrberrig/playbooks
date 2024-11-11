@@ -1,0 +1,13 @@
+# username: web # curr. everything is adm. from single user -> split roles on single users
+# shell: sh
+packages: 
+  - git
+  - hugo
+  - nginx
+  - certbot
+  - python3-certbot-nginx
+domain: christianberrig.com
+website_config: website_config.j2
+# website_name: homepage
+repo_web: homepage
+webroot: "/home/{{ username }}/repos/{{ repo_web }}/public"

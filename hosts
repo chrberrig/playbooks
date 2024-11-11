@@ -1,8 +1,13 @@
 [base]
-vps ansible_host=christianberrig.com ansible_user=root
+# vps ansible_host=christianberrig.com ansible_user=root
+pi_rate ansible_host=192.168.0.100 ansible_user=pi ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/pi_rate
 
 [web]
-vps
+# vps
+pi_rate
 
-[mail]
-vps
+# [mail]
+# vps
+
+# [gitrepo]
+# vps

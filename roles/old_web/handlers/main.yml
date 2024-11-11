@@ -5,11 +5,11 @@
 # - name: Get certificate
 #   shell: certbot -n --nginx -d {{ domain }} -d www.{{ domain }}
 
-# - name: Setup cronjob for cert renewal
-#   cron:
-#     name: certbot-renewal
-#     day: "*/14"
-#     job: "certbot -q renew'"
+- name: Setup cronjob for cert renewal
+  cron:
+    name: certbot-renewal
+    day: "*/14"
+    job: "certbot -q renew'"
 
 - name: Restart nginx service
   service:

@@ -1,0 +1,8 @@
+username: pi
+essential_packages: 
+  - git
+  - vim
+  - htop
+  - neofetch
+  - tmux
+  - speedtest-cli

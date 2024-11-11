@@ -1,0 +1,15 @@
+- name: Install necessary packages
+  tags: git,vim,nginx,certbot
+  package:
+          name: "{{ packages }}"
+    state: latest
+    update_cache: yes
+
+- name: Clone git repo with website content
+  git:
+    repo: https://github.com/chrberrig/{{ repo_web }}.git
+    dest: /home/{{ username }}/repos/{{ repo_web }}
+
+- name: Compile website
+  command: 
+  chdir: /home/{{ username }}/repos/{{ repo_web }}/public 
